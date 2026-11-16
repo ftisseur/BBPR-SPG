@@ -1,6 +1,6 @@
 function [z,averageit] = SEA(R,M1,D1,K1,z,locked)
-%function [z,averageit] = EA_lrkdamp(R,M1,D1,K1,z,locked)
-% EA_lrkdamp: Ehrlich-Aberth to compute the eigenvalues of
+%function [z,averageit] = SEA(R,M1,D1,K1,z,locked)
+% SEA: Ehrlich-Aberth to compute the eigenvalues of
 % diag(M1)*lambda^2 +(D1+RR^T)*lambda + diag(K1)
 % R: n x r matrix  describing external low-rank damping
 % M1: n x 1 vector describing diagonal mass matrix
@@ -27,7 +27,7 @@ while 1
     if mod(it,50)==0
         epsi = epsi*10; %To relax stoppoing criterion. Recommended by L. Taslaman
     end
-    for k=1:N   
+    for k=1:N
         if locked(k), continue, end
         counter = counter+1;
         zk = z(k);
@@ -47,7 +47,7 @@ while 1
            fprintf('Nonfinite A: k=%d, it=%d, zk=%g%+gi\n', ...
             k,it,real(zk),imag(zk));
            %keyboard
-        end 
+        end
 
         if any(~isfinite(idplus(:)))
            fprintf('Nonfinite idplus: k=%d, it=%d, zk=%g%+gi\n', ...

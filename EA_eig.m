@@ -1,17 +1,17 @@
-function [T,Lam,Tinv] = EA_eig(Dint,R1,Om) 
-%EA_EIG Consolidation of calleig_EA_qn, eig_EA_qn and loreqes.
-% Requires SEA.m. Preserves the original arithmetic and random-number calls.
- [VR,Lam,VL,DVR] = compute_eigenpairs(Dint,R1,Om);
-       T = [Om.*VR; VR.*Lam.'];% same as  X = [diag(Om)*VR;VR*diag(Lam)]
-         %     Tinv = [(diag(Lam)*VL'+VL'*(diag(Dint)+R1*R1'))*(diag(1./Om)) VL']; 
-       s = Lam.*VL';      
-       ss = VL'.*Dint.';
-       sss = VL'*R1;
-       sss4 = sss*R1';
-       mm = s+ss+sss4;
-       tmp = 1./Om;
-       tmp0 = mm.*tmp.';
-       Tinv = [tmp0 VL'];
+function [T,Lam,Tinv] = EA_eig(Dint,R1,Om)
+%EA_EIG Solve l^2 I_n + l(Dint+RR^T)+Om^2 with Dint and Om diagonal, and
+%       R is n x kd with kd<<n via Ehrlich-Aberth.
+[VR,Lam,VL,DVR] = compute_eigenpairs(Dint,R1,Om);
+T = [Om.*VR; VR.*Lam.'];% same as  X = [diag(Om)*VR;VR*diag(Lam)]
+%     Tinv = [(diag(Lam)*VL'+VL'*(diag(Dint)+R1*R1'))*(diag(1./Om)) VL'];
+s = Lam.*VL';
+ss = VL'.*Dint.';
+sss = VL'*R1;
+sss4 = sss*R1';
+mm = s+ss+sss4;
+tmp = 1./Om;
+tmp0 = mm.*tmp.';
+Tinv = [tmp0 VL'];
 end
 
 function [VR,Lam,VL,DVR] = compute_eigenpairs(Dint,R,Om)
@@ -42,14 +42,14 @@ DVR = D1+D2;
 VLDVR = sum(conj(VL).*DVR,1);
 VLDVR = transpose(VLDVR);
 VLT=conj(VL);
- stmp = sum(VLT.*VR,1);
- s=stmp.'; 
- s = 2*(s.*Lam);
- ctest = s+ VLDVR;
+stmp = sum(VLT.*VR,1);
+s=stmp.';
+s = 2*(s.*Lam);
+ctest = s+ VLDVR;
 
-for i=1:2*n %This can be made more efficiently  
+for i=1:2*n %This can be made more efficiently
     c=ctest(i); %  c = VL(:,i)'*(2*Lam(i)*diag(M1)+D)*VR(:,i); improved by Qingna
-    VL(:,i) = (1/conj(c))*VL(:,i);   
+    VL(:,i) = (1/conj(c))*VL(:,i);
 %    VL(:,i)'*(2*E(i)*diag(M1)+D)*VR(:,i)  %should be 1
 end
 end
@@ -108,7 +108,7 @@ for i = 1:2*n
     A = M1*(z(i)^2) + D1*z(i) + K1;
     amax = max(abs(A));
     smallA = find(abs(A)<amax*eps);
-    A(smallA) = amax*(rand+1i*rand)*eps; 
+    A(smallA) = amax*(rand+1i*rand)*eps;
     AinvR = A.\R;% AinvR = bsxfun(@ldivide,A,R);
     cap = (R.'*AinvR)*z(i) + I;
     [~,s,v] = svd(cap);
@@ -119,8 +119,8 @@ for i = 1:2*n
     V(:,i) = AinvR*v(:,end);
     if s(1,1)/s(r,r)<1/eps && s(1,1)>realmin % do one iteration of inverse iteration
         x = conj(V(:,i));
-        % Sherman-Morrison-Woodbury O(nr^2)      
-        x = A.\x; %x = bsxfun(@ldivide,A,x);   
+        % Sherman-Morrison-Woodbury O(nr^2)
+        x = A.\x; %x = bsxfun(@ldivide,A,x);
         V(:,i) = x - z(i)*(AinvR*(cap\(R.'*x)));
     end
 end

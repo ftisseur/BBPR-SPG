@@ -17,7 +17,7 @@ doprint = 0;
 % initialization
 eta_min = 1.0e-5;
 eta_max = 1.0e10;
-eta_fallback = 1.0e5;
+eta_fallback = eta_max; %1.0e5;
 j = 0;
 iter_max = 1000;
 tol = opts.tolres;
@@ -95,8 +95,9 @@ while j<iter_max
      rightdes=rightdes*ratiorho;
      fdif = trss-fmax;
      difsearch = fdif-rightdes;
-     if j_ls>10
-        break;
+     if j_ls >= 11 && difsearch > 0
+        error('SPG:LineSearchFailure', ...
+              'Line-search inequality still fails after 11 step reductions.');
      end
   end
   if j_ls>0; iter_ls = iter_ls+1;end
